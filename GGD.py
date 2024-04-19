@@ -2,7 +2,23 @@ import math as m
 import codecs
 import matplotlib.pyplot as plt
 
-data = {
+data1 = {
+    "Q" : 0,
+    "d" : 0,
+    "l" : 0,
+    "delta" : 0,
+    "nu" : 0
+}
+
+data2 = {
+    "Q" : 0,
+    "d" : 0,
+    "l" : 0,
+    "delta" : 0,
+    "nu" : 0
+}
+
+data3 = {
     "Q" : 0,
     "d" : 0,
     "l" : 0,
@@ -50,7 +66,7 @@ def rashod_calc(lyambda, l, d, V, g):
     h = lyambda * l * V**2 / (2 * g * d)
     return h
 
-def main(Q, d, l, delta, nu):
+def main(Q, d, l, delta, nu, number):
     V, Re, Re_num, lyamda, h = 0, 0, 0, 0, 0
     g = 9.81
 
@@ -58,8 +74,10 @@ def main(Q, d, l, delta, nu):
     Re = Re_calc(V, d, nu)
     Re_num = find_Re(Re, d, delta)
 
-    
-    with codecs.open("data_output.txt", 'w', "utf-8") as file:
+
+    with codecs.open("data_output.txt", 'a', "utf-8") as file:
+        file.write(f"{number}-й трубопровод\n")
+
         if(Re_num == 1):
             file.write("Режим работы - ламинарный\n")
         elif(Re_num == 2):
@@ -71,16 +89,16 @@ def main(Q, d, l, delta, nu):
         lyamda = trenie_calc(Re_num, Re, d, delta)
         h = rashod_calc(lyamda, l, d, V, g)
         file.write(f"Коэффициент трения = {lyamda}\n")
-        file.write(f"Расход = {h}\n")
+        file.write(f"Расход = {h}\n\n")
 
-def graph(d, l, delta, nu):
+def graph(d, l, delta, nu, n):
     Q_list = []
     h_list = []
     Q = 0
     V, Re, Re_num, lyamda, h = 0, 0, 0, 0, 0
     g = 9.81
 
-    for i in range(20):
+    for i in range(12):
         qq = Q / 1000
         V = v_calc(qq, d)
         Re = Re_calc(V, d, nu)
@@ -93,21 +111,50 @@ def graph(d, l, delta, nu):
         Q_list.append(Q)
         Q += 5
     plt.plot(Q_list, h_list)
-    plt.xlabel("Расход воды черех трубопровод")
-    plt.ylabel("Общие потери напора")
-    plt.show()
 
-    with codecs.open("data_graph.txt", 'w', "utf-8") as file:
-        for i in range(20):
-            file.write(f"x = {Q_list[i]}, y = {h_list[i]}\n")
+
+    with codecs.open("data_graph.txt", 'a', "utf-8") as file:
+        file.write(f"{n}-ый трубопровод\n")
+        for i in range(12):
+            file.write(f"Q = {Q_list[i]}, h = {h_list[i]}\n")
+        file.write("\n")
 
 with open("data_input.txt", "r") as file:
 
-    for i in data:
-        data[i] = float(file.readline().split('=')[1].strip())
+    for i in data1:
+        data1[i] = float(file.readline().split('=')[1].strip())
+    file.readline()
 
-main(data["Q"], data["d"], data["l"], data["delta"], data["nu"])
-graph(data["d"], data["l"], data["delta"], data["nu"])
+    for i in data2:
+        data2[i] = float(file.readline().split('=')[1].strip())
+    file.readline()
+
+    for i in data3:
+        data3[i] = float(file.readline().split('=')[1].strip())
+
+
+with codecs.open("data_output.txt", 'w', "utf-8") as file:
+       file.write("")
+with codecs.open("data_graph.txt", 'w', "utf-8") as file:
+       file.write("")
+
+main(data1["Q"], data1["d"], data1["l"], data1["delta"], data1["nu"], 1)
+graph(data1["d"], data1["l"], data1["delta"], data1["nu"], 1)
+
+main(data2["Q"], data2["d"], data2["l"], data2["delta"], data2["nu"], 2)
+graph(data2["d"], data2["l"], data2["delta"], data2["nu"], 2)
+
+main(data3["Q"], data3["d"], data3["l"], data3["delta"], data3["nu"], 3)
+graph(data3["d"], data3["l"], data3["delta"], data3["nu"], 3)
+
+main(data3["Q"], data3["d"], data1["l"] + data2["l"] + data3["l"], data3["delta"], data3["nu"], 4)
+graph(data3["d"], data1["l"] + data2["l"] + data3["l"], data3["delta"], data3["nu"], 4)
+
+plt.xlabel("Расход воды через трубопровод")
+plt.ylabel("Общие потери напора")
+plt.grid()
+plt.legend(('1-ый', '2-ый', '3-ый', 'суммарный'))
+plt.show()
 
 
 ## auto-py-to-exe
